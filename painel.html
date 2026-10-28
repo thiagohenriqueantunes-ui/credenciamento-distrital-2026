@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#081d39">
+<title>Distrito MG | Gestão de Eventos</title>
+<style>
+:root{--navy:#071a34;--navy2:#102f55;--blue:#218cff;--ink:#14243b;--muted:#75839a;--bg:#f5f7fb;--line:#e5eaf1}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",Arial,sans-serif;letter-spacing:-.015em}
+button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #82bcff;outline-offset:2px}
+.shell{display:flex;min-height:100vh}.sidebar{width:252px;flex-shrink:0;background:var(--navy);color:#fff;padding:34px 21px;display:flex;flex-direction:column;gap:36px}
+.brand{padding:4px 12px}.brand .over{font-size:10px;letter-spacing:.26em;color:#7ba6d5;font-weight:800}.brand strong{display:block;font-size:25px;line-height:1.1;margin-top:11px;font-weight:650;letter-spacing:-.06em}.brand small{display:block;margin-top:9px;font-size:11px;color:#a3b6ce}
+.nav{display:grid;gap:5px}.nav button{border:0;background:transparent;color:#9eb1c9;text-align:left;padding:13px 15px;border-radius:10px;font-size:13px;transition:.2s}
+.nav button:hover,.nav button.active{background:#173756;color:white}.nav button.active{box-shadow:inset 3px 0 var(--blue)}
+.sidebar-foot{margin-top:auto;padding:16px 12px;border-top:1px solid #27415f;color:#8096b0;font-size:11px;line-height:1.7}
+.main{min-width:0;flex:1;padding:34px clamp(20px,4vw,65px) 60px;max-width:1600px;margin:auto}
+.top{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:32px}.eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:800;color:#7990ab}
+.top .user{font-size:12px;color:#7c8da4}.live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#4cc9b0;margin-right:7px}
+.hero{position:relative;overflow:hidden;background:linear-gradient(115deg,#071b36 10%,#123d6b 70%,#1376c1);color:white;border-radius:24px;padding:clamp(27px,5vw,55px);min-height:255px}
+.hero:after{content:"";position:absolute;width:420px;height:420px;border:1px solid #ffffff22;border-radius:50%;right:-110px;top:-140px;box-shadow:0 0 0 60px #ffffff07,0 0 0 125px #ffffff05}
+.hero>*{position:relative;z-index:1}.hero .eyebrow{color:#89bce8}.hero h1{font-size:clamp(30px,4vw,53px);line-height:1.08;letter-spacing:-.06em;margin:20px 0 12px;max-width:680px;font-weight:650}.hero p{color:#b5cbe3;font-size:14px;max-width:550px;line-height:1.7;margin:0}
+.hero .hero-action{margin-top:26px;border:0;border-radius:9px;background:#fff;color:#10294b;padding:12px 18px;font-size:12px;font-weight:750}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:35px 0 17px}.section-head h2{font-size:22px;letter-spacing:-.05em;margin:0}.section-head p{font-size:12px;color:var(--muted);margin:7px 0 0}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.stat{background:white;border-radius:15px;padding:22px 20px;min-height:125px;box-shadow:0 5px 28px #18334a06}
+.stat .name{font-size:12px;color:#7e8da1}.stat .value{font-size:35px;font-weight:650;letter-spacing:-.07em;margin-top:19px}.stat .sub{font-size:11px;color:#96a4b4;margin-top:6px}
+.two{display:grid;grid-template-columns:1.3fr 1fr;gap:17px;margin-top:18px}.surface{background:white;border-radius:17px;padding:26px;box-shadow:0 5px 28px #18334a06}.surface h3{font-size:17px;letter-spacing:-.04em;margin:0 0 6px}.surface .hint{font-size:12px;color:var(--muted);line-height:1.6;margin:0 0 21px}
+.progress{height:9px;background:#e9eef5;border-radius:99px;overflow:hidden;margin:19px 0 12px}.progress>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#125fba,#3a9bff);border-radius:99px;transition:width .8s}
+.flex-between{display:flex;justify-content:space-between;gap:10px;align-items:center}.muted{color:var(--muted);font-size:12px}.item{padding:15px 0;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px}
+.pill{font-size:10px;padding:7px 10px;background:#edf6ff;color:#1a66ae;border-radius:99px;white-space:nowrap}
+.page{display:none;animation:appear .25s ease}.page.active{display:block}@keyframes appear{from{opacity:.3;transform:translateY(8px)}to{opacity:1;transform:none}}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}.btn{border:0;background:var(--navy);color:white;padding:12px 17px;border-radius:10px;font-size:12px;font-weight:700}.btn.secondary{background:#eaf0f8;color:#18314f}.btn:disabled{opacity:.5;cursor:not-allowed}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.field{display:flex;flex-direction:column;gap:8px}.field label{font-size:12px;font-weight:650;color:#344760}.field input,.field select{width:100%;padding:13px 14px;border:1px solid #dde5ee;border-radius:10px;background:#fbfcff;color:#20324c}.field.wide{grid-column:1/-1}
+.notice{border-left:3px solid #2589e6;background:#eff7ff;padding:15px 18px;border-radius:0 10px 10px 0;color:#43617f;font-size:12px;line-height:1.7;margin:18px 0}
+.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:12px}th{text-align:left;color:#8392a7;font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:13px 10px;border-bottom:1px solid var(--line)}td{padding:17px 10px;border-bottom:1px solid #eef1f5;white-space:nowrap}
+.empty{padding:40px 12px;color:#8a99aa;text-align:center;font-size:13px}.small{font-size:11px;color:#8a99aa;line-height:1.7}
+@media(max-width:950px){.sidebar{width:205px}.stats{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
+@media(max-width:650px){.shell{display:block}.sidebar{width:100%;padding:20px 15px 12px;gap:13px}.brand strong{font-size:21px}.brand small,.sidebar-foot{display:none}.nav{display:flex;overflow-x:auto;padding-bottom:7px}.nav button{white-space:nowrap;padding:11px}.main{padding:24px 16px 45px}.hero{min-height:230px}.stats{gap:9px}.stat{padding:16px;min-height:115px}.stat .value{font-size:29px}.form-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+ <div class="brand"><div class="over">IGREJA DO NAZARENO</div><strong>Distrito<br>Minas Gerais.</strong><small>Plataforma de eventos</small></div>
+ <nav class="nav" aria-label="Navegação principal">
+  <button class="active" data-page="visao">Visão geral</button><button data-page="eventos">Eventos</button><button data-page="participantes">Participantes</button><button data-page="importacao">Importação</button><button data-page="pagamentos">Pagamentos</button><button data-page="credenciais">Credenciais</button><button data-page="relatorios">Relatórios</button><button data-page="configuracoes">Configurações</button>
+ </nav>
+ <div class="sidebar-foot">Ambiente de desenvolvimento<br>Versão visual 1.0 · Sem conexão com dados</div>
+</aside>
+<main class="main">
+ <div class="top"><div class="eyebrow" id="crumb">PAINEL / VISÃO GERAL</div><div class="user"><span class="live"></span>Prévia de desenvolvimento</div></div>
+ <section class="page active" id="visao">
+  <div class="hero"><div class="eyebrow">GESTÃO DISTRITAL DE EVENTOS</div><h1>Uma nova forma de organizar encontros.</h1><p>Inscrições, pagamentos, credenciais e acompanhamento em um só lugar. Simples para quem organiza. Melhor para quem participa.</p><button class="hero-action" data-go="eventos">Explorar eventos &nbsp; →</button></div>
+  <div class="section-head"><div><h2>Visão geral</h2><p>Indicadores ilustrativos — nenhum dado real conectado.</p></div><span class="muted">Painel administrativo</span></div>
+  <div class="stats"><div class="stat"><div class="name">Eventos ativos</div><div class="value">01</div><div class="sub">Exemplo visual</div></div><div class="stat"><div class="name">Inscrições</div><div class="value">—</div><div class="sub">Aguardando integração</div></div><div class="stat"><div class="name">Pagamentos</div><div class="value">—</div><div class="sub">Aguardando integração</div></div><div class="stat"><div class="name">Credenciais</div><div class="value">—</div><div class="sub">Aguardando integração</div></div></div>
+  <div class="two"><div class="surface"><h3>Acompanhamento do evento</h3><p class="hint">A evolução das inscrições e entradas aparecerá aqui após a conexão com o Google Planilhas.</p><div class="progress"><span></span></div><div class="flex-between"><span class="muted">Comparecimento</span><strong>—</strong></div></div><div class="surface"><h3>Próximas etapas</h3><p class="hint">Estamos construindo uma plataforma segura, preservando a recepção já existente.</p><div class="item"><span>Autenticação administrativa</span><span class="pill">Planejado</span></div><div class="item"><span>Cadastro e importação</span><span class="pill">Planejado</span></div><div class="item"><span>Credenciais e envios</span><span class="pill">Planejado</span></div></div></div>
+ </section>
+ <section class="page" id="eventos"><div class="section-head"><div><div class="eyebrow">GESTÃO</div><h2>Eventos</h2><p>Organize diferentes eventos dentro da mesma plataforma.</p></div></div><div class="surface"><div class="flex-between"><div><h3>Conferência Distrital de Pastores e Líderes 2026</h3><p class="hint">14 de novembro de 2026 · Belo Horizonte/MG · Inscrição R$ 80,00</p></div><span class="pill">Referência</span></div><div class="notice">Este evento aparece apenas como referência visual. O cadastro de eventos ainda não foi ativado.</div><button class="btn" disabled>Criar novo evento</button></div></section>
+ <section class="page" id="participantes"><div class="section-head"><div><div class="eyebrow">CADASTROS</div><h2>Participantes</h2><p>Cadastre participantes e acompanhe suas inscrições.</p></div></div><div class="surface"><h3>Novo participante</h3><p class="hint">Estrutura do formulário padrão para todos os eventos.</p><div class="form-grid"><div class="field"><label for="nome">Nome completo</label><input id="nome" placeholder="Nome do participante"></div><div class="field"><label for="telefone">WhatsApp com DDD</label><input id="telefone" placeholder="(31) 99999-9999"></div><div class="field"><label for="email">E-mail</label><input id="email" type="email" placeholder="nome@exemplo.com"></div><div class="field"><label for="igreja">Igreja ou instituição</label><input id="igreja" placeholder="Igreja / instituição"></div><div class="field"><label for="cidade">Cidade</label><input id="cidade" placeholder="Cidade"></div><div class="field"><label for="uf">UF</label><input id="uf" maxlength="2" placeholder="MG"></div><div class="field"><label for="funcao">Função / atividade</label><input id="funcao" placeholder="Ex.: liderança"></div><div class="field"><label for="pagador">Nome do pagador Pix</label><input id="pagador" placeholder="Se aplicável"></div></div><div class="notice">Modo de demonstração. Os dados digitados não são enviados nem salvos.</div><button class="btn" disabled>Salvar participante</button></div></section>
+ <section class="page" id="importacao"><div class="section-head"><div><div class="eyebrow">DADOS</div><h2>Importação</h2><p>Importe respostas do Microsoft Forms e outras planilhas.</p></div></div><div class="surface"><h3>Importar inscrições</h3><p class="hint">Nesta área, futuramente você poderá selecionar arquivos Excel ou CSV, revisar colunas, detectar duplicidades e confirmar a importação.</p><div class="notice">A importação só será ativada depois da implementação das validações e do banco de dados de testes.</div><button class="btn" disabled>Selecionar arquivo</button></div></section>
+ <section class="page" id="pagamentos"><div class="section-head"><div><div class="eyebrow">FINANCEIRO</div><h2>Pagamentos</h2><p>Confirmação manual de Pix após conferência bancária.</p></div></div><div class="surface"><h3>Controle de pagamentos</h3><p class="hint">As inscrições aparecerão aqui com situação pendente ou confirmada.</p><div class="table-wrap"><table><thead><tr><th>Participante</th><th>Evento</th><th>Valor</th><th>Situação</th></tr></thead><tbody><tr><td colspan="4" class="empty">Nenhum dado carregado nesta prévia.</td></tr></tbody></table></div></div></section>
+ <section class="page" id="credenciais"><div class="section-head"><div><div class="eyebrow">EMISSÃO</div><h2>Credenciais</h2><p>Ingressos personalizados com QR Code válido para cada evento.</p></div></div><div class="surface"><h3>Emissão e entrega</h3><p class="hint">A credencial será gerada após a confirmação do pagamento, seguindo o modelo visual de cada evento.</p><div class="notice">Planejamos envio por e-mail e disponibilização de link para WhatsApp. Envio totalmente automático pelo WhatsApp requer integração específica.</div><button class="btn" disabled>Gerar credencial</button></div></section>
+ <section class="page" id="relatorios"><div class="section-head"><div><div class="eyebrow">ANÁLISE</div><h2>Relatórios</h2><p>Inscrições, pagamentos e comparecimento por evento.</p></div></div><div class="surface"><h3>Relatórios em preparação</h3><p class="hint">Os indicadores serão exibidos após a integração com a base de dados.</p></div></section>
+ <section class="page" id="configuracoes"><div class="section-head"><div><div class="eyebrow">PLATAFORMA</div><h2>Configurações</h2><p>Identidade visual, acesso administrativo e preferências de envio.</p></div></div><div class="surface"><h3>Segurança</h3><p class="hint">O login administrativo será validado pelo servidor, com permissão distinta da recepção.</p><div class="notice">Esta página visual ainda não possui autenticação. Não insira dados reais ou senhas nesta versão.</div></div></section>
+</main>
+</div>
+<script>
+const buttons=[...document.querySelectorAll('[data-page]')];
+const pages=[...document.querySelectorAll('.page')];
+const titles={visao:'VISÃO GERAL',eventos:'EVENTOS',participantes:'PARTICIPANTES',importacao:'IMPORTAÇÃO',pagamentos:'PAGAMENTOS',credenciais:'CREDENCIAIS',relatorios:'RELATÓRIOS',configuracoes:'CONFIGURAÇÕES'};
+function showPage(id){if(!titles[id])return;buttons.forEach(b=>{const on=b.dataset.page===id;b.classList.toggle('active',on);b.setAttribute('aria-current',on?'page':'false')});pages.forEach(p=>p.classList.toggle('active',p.id===id));document.getElementById('crumb').textContent='PAINEL / '+titles[id];window.scrollTo({top:0,behavior:'smooth'})}
+buttons.forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.go)));
+</script>
+</body></html>
