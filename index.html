@@ -32,11 +32,13 @@
     h1 {
       color: #102b55;
       font-size: 27px;
+      margin: 0 0 10px;
     }
 
     .sub {
       color: #64748b;
       line-height: 1.6;
+      font-size: 14px;
     }
 
     .card {
@@ -50,7 +52,7 @@
     label {
       display: block;
       font-weight: bold;
-      margin-bottom: 10px;
+      margin: 12px 0 10px;
     }
 
     input {
@@ -59,6 +61,9 @@
       font-size: 18px;
       border: 1px solid #cbd5e1;
       border-radius: 9px;
+    }
+
+    #codigo, #usuarioLogin {
       text-transform: uppercase;
     }
 
@@ -114,12 +119,19 @@
     #reader {
       width: 100%;
       margin-top: 15px;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    #reader video {
+      width: 100% !important;
     }
 
     footer {
       text-align: center;
       color: #64748b;
       font-size: 12px;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -127,53 +139,99 @@
 <body>
 <main>
 
-  <header>
-    <h1>Credenciamento 2026</h1>
-    <div class="sub">
-      Conferência Distrital de Pastores e Líderes
-    </div>
-    <div class="sub">Distrito Minas Gerais</div>
-  </header>
+  <!-- TELA DE LOGIN -->
+  <section class="card" id="telaLogin">
+    <header>
+      <h1>Acesso ao Credenciamento</h1>
+      <div class="sub">
+        Conferência Distrital de Pastores e Líderes
+      </div>
+      <div class="sub">Distrito Minas Gerais</div>
+    </header>
 
-  <section class="card">
-    <label for="codigo">Código do ingresso</label>
+    <form id="formLogin">
+      <label for="usuarioLogin">Usuário</label>
+      <input
+        id="usuarioLogin"
+        type="text"
+        placeholder="Usuário"
+        autocomplete="username"
+        required
+      >
 
-    <input
-      id="codigo"
-      placeholder="CDPL26-0001"
-      autocomplete="off"
-    >
+      <label for="senhaLogin">Senha</label>
+      <input
+        id="senhaLogin"
+        type="password"
+        placeholder="Digite sua senha"
+        autocomplete="current-password"
+        required
+      >
 
-    <button id="buscar" onclick="consultar()">
-      Consultar ingresso
-    </button>
+      <button type="submit" id="botaoLogin">
+        Entrar
+      </button>
+    </form>
 
-    <button
-      id="scan"
-      class="secondary"
-      onclick="alternarCamera()"
-    >
-      Ler QR Code
-    </button>
-
-    <div id="reader" class="hidden"></div>
-    <div id="aviso"></div>
+    <div id="mensagemLogin"></div>
   </section>
 
-  <section class="card hidden" id="resultado">
-    <div class="name" id="nome"></div>
-    <div class="info" id="ingresso"></div>
-    <div class="info" id="pagamento"></div>
-    <div class="info" id="entrada"></div>
+  <!-- ÁREA PROTEGIDA -->
+  <div id="areaCredenciamento" class="hidden">
 
-    <button
-      id="confirmar"
-      class="success"
-      onclick="confirmar()"
-    >
-      Confirmar entrada
+    <header>
+      <h1>Credenciamento 2026</h1>
+      <div class="sub">
+        Conferência Distrital de Pastores e Líderes
+      </div>
+      <div class="sub">Distrito Minas Gerais</div>
+    </header>
+
+    <section class="card">
+      <label for="codigo">Código do ingresso</label>
+
+      <input
+        id="codigo"
+        placeholder="CDPL26-0001"
+        autocomplete="off"
+      >
+
+      <button id="buscar" onclick="consultar()">
+        Consultar ingresso
+      </button>
+
+      <button
+        id="scan"
+        class="secondary"
+        onclick="alternarCamera()"
+      >
+        Ler QR Code
+      </button>
+
+      <div id="reader" class="hidden"></div>
+      <div id="aviso"></div>
+    </section>
+
+    <section class="card hidden" id="resultado">
+      <div class="name" id="nome"></div>
+      <div class="info" id="ingresso"></div>
+      <div class="info" id="pagamento"></div>
+      <div class="info" id="entrada"></div>
+
+      <button
+        id="confirmar"
+        class="success"
+        onclick="confirmar()"
+      >
+        Confirmar entrada
+      </button>
+    </section>
+
+    <button class="secondary" onclick="sair()">
+      Sair do sistema
     </button>
-  </section>
+
+  </div>
 
   <footer>
     Igreja do Nazareno — Distrito Minas Gerais
@@ -182,28 +240,53 @@
 </main>
 
 <script>
-  // A conexão segura com a planilha
-  // será configurada posteriormente.
-  
-const API_URL = "https://script.google.com/macros/s/AKfycbwOoSoFT7Nw6VPhthrhFdY29a_5xjh5PVIl2aPKy-nq92estOjDk_JkEQSyiWOLFydx/exec";
+  const API_URL =
+    "https://script.google.com/macros/s/AKfycbwOoSoFT7Nw6VPhthrhFdY29a_5xjh5PVIl2aPKy-nq92estOjDk_JkEQSyiWOLFydx/exec";
 
+  let tokenSessao =
+    sessionStorage.getItem('tokenRecepcao') || '';
 
   let participante = null;
   let leitorQR = null;
   let iniciandoCamera = false;
+  let processandoQR = false;
   let operacaoPendente = false;
 
   const el = id => document.getElementById(id);
 
-  function aviso(texto, erro = false) {
-    el('aviso').innerHTML = '';
+  function mostrarMensagem(id, texto, erro = false) {
+    const destino = el(id);
+    destino.replaceChildren();
 
     if (!texto) return;
 
     const div = document.createElement('div');
     div.className = 'message ' + (erro ? 'error' : 'ok');
     div.textContent = texto;
-    el('aviso').appendChild(div);
+    destino.appendChild(div);
+  }
+
+  function aviso(texto, erro = false) {
+    mostrarMensagem('aviso', texto, erro);
+  }
+
+  function mostrarCredenciamento() {
+    el('telaLogin').classList.add('hidden');
+    el('areaCredenciamento').classList.remove('hidden');
+  }
+
+  function mostrarLogin() {
+    el('areaCredenciamento').classList.add('hidden');
+    el('telaLogin').classList.remove('hidden');
+    el('resultado').classList.add('hidden');
+    participante = null;
+  }
+
+  function limparSessao() {
+    tokenSessao = '';
+    sessionStorage.removeItem('tokenRecepcao');
+    pararCamera();
+    mostrarLogin();
   }
 
   function ocupado(valor) {
@@ -212,32 +295,109 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwOoSoFT7Nw6VPhthrhFdY2
     el('confirmar').disabled = valor;
   }
 
-  async function requisicao(acao, codigo) {
+  async function requisicao(acao, codigo = '', credenciais = {}) {
     if (!API_URL) {
-      throw new Error(
-        'A integração com a planilha ainda não foi configurada.'
-      );
+      throw new Error('Endereço do servidor não configurado.');
     }
+
+    const pedido = {
+      acao,
+      codigo,
+      token: tokenSessao,
+      ...credenciais
+    };
 
     const resposta = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain;charset=utf-8'
       },
-      body: JSON.stringify({ acao, codigo })
+      body: JSON.stringify(pedido)
     });
 
     if (!resposta.ok) {
       throw new Error('Falha de comunicação com o servidor.');
     }
 
-    return resposta.json();
+    const dados = await resposta.json();
+
+    if (dados.sessaoExpirada) {
+      limparSessao();
+    }
+
+    return dados;
   }
 
-  async function consultar() {
-    if (operacaoPendente) return;
+  // LOGIN
+  async function fazerLogin(event) {
+    event.preventDefault();
 
-    const codigo = el('codigo').value.trim().toUpperCase();
+    const usuario = el('usuarioLogin').value.trim();
+    const senha = el('senhaLogin').value;
+
+    const botao = el('botaoLogin');
+    botao.disabled = true;
+
+    mostrarMensagem(
+      'mensagemLogin',
+      'Verificando acesso...'
+    );
+
+    try {
+      const dados = await requisicao(
+        'login',
+        '',
+        { usuario, senha }
+      );
+
+      if (dados.erro) {
+        mostrarMensagem(
+          'mensagemLogin',
+          dados.erro,
+          true
+        );
+        return;
+      }
+
+      if (!dados.sucesso || !dados.token) {
+        throw new Error('Resposta de login inválida.');
+      }
+
+      tokenSessao = dados.token;
+
+      sessionStorage.setItem(
+        'tokenRecepcao',
+        tokenSessao
+      );
+
+      el('senhaLogin').value = '';
+      mostrarMensagem('mensagemLogin', '');
+      mostrarCredenciamento();
+
+    } catch (erro) {
+      mostrarMensagem(
+        'mensagemLogin',
+        'Falha no login: ' + erro.message,
+        true
+      );
+    } finally {
+      botao.disabled = false;
+    }
+  }
+
+  function sair() {
+    limparSessao();
+    el('senhaLogin').value = '';
+    aviso('');
+  }
+
+  // CONSULTA
+  async function consultar() {
+    if (operacaoPendente || !tokenSessao) return;
+
+    const codigo = el('codigo').value
+      .trim()
+      .toUpperCase();
 
     await pararCamera();
 
@@ -253,7 +413,10 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwOoSoFT7Nw6VPhthrhFdY2
     aviso('Consultando ingresso...');
 
     try {
-      const dados = await requisicao('consultar', codigo);
+      const dados = await requisicao(
+        'consultar',
+        codigo
+      );
 
       if (dados.erro) {
         aviso(dados.erro, true);
@@ -263,6 +426,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwOoSoFT7Nw6VPhthrhFdY2
       participante = dados;
 
       el('nome').textContent = dados.nome;
+
       el('ingresso').textContent =
         'Ingresso: ' + dados.codigo;
 
@@ -270,10 +434,14 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwOoSoFT7Nw6VPhthrhFdY2
         'Pagamento: ' + dados.pagamento;
 
       const entrada =
-        String(dados.entrada).trim().toLowerCase() === 'sim';
+        String(dados.entrada || '')
+          .trim()
+          .toLowerCase() === 'sim';
 
       const pago =
-        String(dados.pagamento).trim().toLowerCase() === 'confirmado';
+        String(dados.pagamento || '')
+          .trim()
+          .toLowerCase() === 'confirmado';
 
       el('entrada').textContent = entrada
         ? 'Entrada já registrada: ' + (dados.horario || '')
@@ -285,25 +453,30 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwOoSoFT7Nw6VPhthrhFdY2
       aviso('');
 
     } catch (erro) {
-      aviso(erro.message, true);
+      aviso('Falha na consulta: ' + erro.message, true);
 
     } finally {
       ocupado(false);
 
       if (participante) {
         const entrada =
-          String(participante.entrada).toLowerCase() === 'sim';
+          String(participante.entrada || '')
+            .toLowerCase() === 'sim';
 
         const pago =
-          String(participante.pagamento).toLowerCase() === 'confirmado';
+          String(participante.pagamento || '')
+            .toLowerCase() === 'confirmado';
 
         el('confirmar').disabled = entrada || !pago;
       }
     }
   }
 
+  // CONFIRMAÇÃO
   async function confirmar() {
-    if (!participante || operacaoPendente) return;
+    if (!participante || operacaoPendente || !tokenSessao) {
+      return;
+    }
 
     ocupado(true);
     aviso('Registrando entrada...');
@@ -332,8 +505,8 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwOoSoFT7Nw6VPhthrhFdY2
 
     } catch (erro) {
       aviso(
-        erro.message +
-        ' Consulte novamente antes de tentar outra vez.',
+        'Falha ao registrar: ' + erro.message +
+        '. Consulte novamente antes de tentar outra vez.',
         true
       );
 
@@ -342,14 +515,21 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwOoSoFT7Nw6VPhthrhFdY2
     } finally {
       ocupado(false);
 
-      if (participante && participante.entrada === 'Sim') {
-        el('confirmar').disabled = true;
+      if (participante) {
+        const entrada =
+          String(participante.entrada || '')
+            .toLowerCase() === 'sim';
+
+        if (entrada) {
+          el('confirmar').disabled = true;
+        }
       }
     }
   }
 
+  // CÂMERA E QR CODE
   async function alternarCamera() {
-    if (iniciandoCamera) return;
+    if (iniciandoCamera || operacaoPendente) return;
 
     if (leitorQR) {
       await pararCamera();
@@ -370,6 +550,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwOoSoFT7Nw6VPhthrhFdY2
     }
 
     iniciandoCamera = true;
+    processandoQR = false;
     el('scan').disabled = true;
     el('reader').classList.remove('hidden');
 
@@ -381,11 +562,17 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwOoSoFT7Nw6VPhthrhFdY2
         { fps: 10, qrbox: 220 },
 
         async codigoLido => {
+          if (processandoQR) return;
+
+          processandoQR = true;
+
           el('codigo').value =
-            String(codigoLido).trim().toUpperCase();
+            String(codigoLido || '')
+              .trim()
+              .toUpperCase();
 
           await pararCamera();
-          consultar();
+          await consultar();
         },
 
         () => {}
@@ -422,7 +609,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwOoSoFT7Nw6VPhthrhFdY2
         leitor.clear();
 
       } catch (erro) {
-        console.error(erro);
+        console.error('Erro ao fechar câmera:', erro);
       }
     }
 
@@ -430,9 +617,32 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwOoSoFT7Nw6VPhthrhFdY2
     el('scan').textContent = 'Ler QR Code';
   }
 
-  el('codigo').addEventListener('keydown', e => {
-    if (e.key === 'Enter') consultar();
+  // EVENTOS
+  el('formLogin').addEventListener('submit', fazerLogin);
+
+  el('codigo').addEventListener('keydown', event => {
+    if (event.key === 'Enter') {
+      consultar();
+    }
   });
+
+  // Sessões existentes precisam ser verificadas
+  // no servidor antes de liberar o credenciamento.
+  if (tokenSessao) {
+    (async () => {
+      try {
+        const dados = await requisicao('verificarSessao');
+
+        if (dados.sucesso === true) {
+          mostrarCredenciamento();
+        } else {
+          limparSessao();
+        }
+      } catch (erro) {
+        limparSessao();
+      }
+    })();
+  }
 </script>
 
 </body>
