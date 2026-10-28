@@ -1,0 +1,821 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071a34">
+  <title>Acesso | Sistema Distrital de Eventos MG</title>
+
+  <style>
+    :root {
+      --navy: #071a34;
+      --navy2: #123b67;
+      --blue: #1976d2;
+      --blue-light: #edf5ff;
+      --bg: #f4f6fa;
+      --white: #ffffff;
+      --text: #10233e;
+      --muted: #70829b;
+      --border: #dce4ee;
+      --danger: #bd303c;
+      --success: #176b4a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .layout {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .presentation {
+      background: linear-gradient(
+        145deg,
+        #071a34 0%,
+        #10365f 60%,
+        #20598e 100%
+      );
+      color: white;
+      padding: 56px 9%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .brand-small {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #8cc3ff;
+      text-transform: uppercase;
+    }
+
+    .brand-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-top: 12px;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 4vw, 60px);
+      line-height: 1.12;
+      letter-spacing: -2px;
+      margin: 0 0 25px;
+      max-width: 560px;
+    }
+
+    .hero p {
+      font-size: 16px;
+      line-height: 1.8;
+      color: #c6d7ec;
+      max-width: 440px;
+    }
+
+    .presentation-footer {
+      font-size: 12px;
+      color: #a6bed9;
+    }
+
+    .access-area {
+      padding: 50px 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .access-card {
+      width: 100%;
+      max-width: 440px;
+      background: white;
+      padding: 40px;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: 0 20px 60px rgba(16, 35, 62, .06);
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: var(--blue);
+      text-transform: uppercase;
+    }
+
+    .access-card h2 {
+      font-size: 29px;
+      letter-spacing: -1px;
+      margin: 12px 0 8px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .field input {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: #fafcff;
+      padding: 14px 15px;
+      border-radius: 10px;
+      outline: none;
+      transition: .2s;
+    }
+
+    .field input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(25, 118, 210, .10);
+    }
+
+    .primary-button {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      padding: 15px;
+      background: var(--blue);
+      color: white;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .primary-button:hover {
+      background: #115eaf;
+    }
+
+    .primary-button:disabled,
+    .google-button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    .google-button {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 10px;
+      padding: 14px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .google-mark {
+      font-size: 20px;
+      font-weight: 800;
+      color: #4285f4;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      margin: 24px 0;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      height: 1px;
+      background: var(--border);
+      flex: 1;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      margin: -5px 0 20px;
+    }
+
+    .text-button {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--blue);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .switch-area {
+      text-align: center;
+      font-size: 13px;
+      margin-top: 25px;
+      color: var(--muted);
+    }
+
+    .message {
+      display: none;
+      border-radius: 9px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .message.error {
+      display: block;
+      color: var(--danger);
+      background: #fff0f1;
+    }
+
+    .message.success {
+      display: block;
+      color: var(--success);
+      background: #eaf8f0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .welcome-box {
+      background: var(--blue-light);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .secondary-button {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      margin-top: 12px;
+    }
+
+    .fine-print {
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 26px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 850px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .presentation {
+        padding: 32px 25px;
+        min-height: auto;
+      }
+
+      .hero,
+      .presentation-footer {
+        display: none;
+      }
+
+      .brand-title {
+        font-size: 22px;
+      }
+
+      .access-area {
+        padding: 30px 16px 50px;
+        align-items: flex-start;
+      }
+
+      .access-card {
+        padding: 28px 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+  <section class="presentation">
+    <div>
+      <div class="brand-small">Igreja do Nazareno</div>
+      <div class="brand-title">Distrito Minas Gerais.</div>
+    </div>
+
+    <div class="hero">
+      <h1>Seus encontros. Sua história. Tudo em um só lugar.</h1>
+      <p>
+        Uma nova experiência para participar dos eventos
+        distritais, acompanhar inscrições e acessar suas
+        credenciais com praticidade e segurança.
+      </p>
+    </div>
+
+    <div class="presentation-footer">
+      Sistema Distrital de Eventos MG
+    </div>
+  </section>
+
+  <main class="access-area">
+    <div class="access-card">
+
+      <div class="eyebrow">Área do participante</div>
+
+      <div id="message" class="message" role="status" aria-live="polite"></div>
+
+      <!-- ENTRAR -->
+      <section id="loginSection">
+        <h2>Bem-vindo de volta.</h2>
+        <p class="subtitle">
+          Entre com sua conta para acessar seus eventos.
+        </p>
+
+        <form id="loginForm">
+          <div class="field">
+            <label for="loginEmail">E-mail</label>
+            <input
+              type="email"
+              id="loginEmail"
+              placeholder="seu@email.com"
+              autocomplete="email"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label for="loginPassword">Senha</label>
+            <input
+              type="password"
+              id="loginPassword"
+              placeholder="Sua senha"
+              autocomplete="current-password"
+              required
+            >
+          </div>
+
+          <div class="actions">
+            <button type="button" class="text-button" data-view="recover">
+              Esqueceu a senha?
+            </button>
+          </div>
+
+          <button type="submit" class="primary-button">
+            Entrar no sistema
+          </button>
+        </form>
+
+        <div class="divider">ou continue com</div>
+
+        <button type="button" class="google-button" id="googleLogin">
+          <span class="google-mark">G</span>
+          Continuar com Google
+        </button>
+
+        <div class="switch-area">
+          Ainda não tem uma conta?
+          <button type="button" class="text-button" data-view="register">
+            Criar conta
+          </button>
+        </div>
+      </section>
+
+      <!-- CRIAR CONTA -->
+      <section id="registerSection" class="hidden">
+        <h2>Crie sua conta.</h2>
+        <p class="subtitle">
+          Faça seu cadastro para participar dos nossos eventos.
+        </p>
+
+        <form id="registerForm">
+          <div class="field">
+            <label for="registerName">Nome completo</label>
+            <input
+              type="text"
+              id="registerName"
+              placeholder="Seu nome completo"
+              autocomplete="name"
+              required
+              minlength="3"
+            >
+          </div>
+
+          <div class="field">
+            <label for="registerEmail">E-mail</label>
+            <input
+              type="email"
+              id="registerEmail"
+              placeholder="seu@email.com"
+              autocomplete="email"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label for="registerPassword">Crie uma senha</label>
+            <input
+              type="password"
+              id="registerPassword"
+              placeholder="Mínimo de 6 caracteres"
+              autocomplete="new-password"
+              minlength="6"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label for="registerConfirm">Confirme sua senha</label>
+            <input
+              type="password"
+              id="registerConfirm"
+              placeholder="Repita sua senha"
+              autocomplete="new-password"
+              minlength="6"
+              required
+            >
+          </div>
+
+          <button type="submit" class="primary-button">
+            Criar minha conta
+          </button>
+        </form>
+
+        <div class="switch-area">
+          Já possui uma conta?
+          <button type="button" class="text-button" data-view="login">
+            Fazer login
+          </button>
+        </div>
+      </section>
+
+      <!-- RECUPERAR SENHA -->
+      <section id="recoverSection" class="hidden">
+        <h2>Recuperar acesso.</h2>
+        <p class="subtitle">
+          Informe seu e-mail para receber as instruções
+          de redefinição de senha.
+        </p>
+
+        <form id="recoverForm">
+          <div class="field">
+            <label for="recoverEmail">E-mail cadastrado</label>
+            <input
+              type="email"
+              id="recoverEmail"
+              placeholder="seu@email.com"
+              autocomplete="email"
+              required
+            >
+          </div>
+
+          <button type="submit" class="primary-button">
+            Enviar instruções
+          </button>
+        </form>
+
+        <div class="switch-area">
+          <button type="button" class="text-button" data-view="login">
+            Voltar para login
+          </button>
+        </div>
+      </section>
+
+      <!-- ÁREA INICIAL AUTENTICADA -->
+      <section id="accountSection" class="hidden">
+        <h2>Olá, <span id="accountName">participante</span>!</h2>
+
+        <p class="subtitle">
+          Seu acesso ao Sistema Distrital de Eventos MG
+          está funcionando.
+        </p>
+
+        <div class="welcome-box">
+          <strong>Minha conta</strong>
+          <div id="accountEmail"></div>
+          <div id="accountStatus"></div>
+        </div>
+
+        <div class="welcome-box">
+          <strong>Meus Eventos</strong>
+          <p>
+            Em breve, você poderá consultar suas inscrições,
+            pagamentos, eventos anteriores e credenciais
+            com QR Code nesta área.
+          </p>
+        </div>
+
+        <button type="button" class="secondary-button" id="logoutButton">
+          Sair da minha conta
+        </button>
+      </section>
+
+      <div class="fine-print">
+        Igreja do Nazareno — Distrito Minas Gerais
+        <br>
+        Ambiente de desenvolvimento e testes.
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<script type="module">
+
+  import { initializeApp } from
+    "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+
+  import {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    sendPasswordResetEmail,
+    sendEmailVerification,
+    updateProfile,
+    signOut,
+    onAuthStateChanged
+  } from
+    "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDvBhMN7SjjiLJh9Ezl3Jk055qSbEmvrs4",
+    authDomain: "sistema-distrital-eventos-mg.firebaseapp.com",
+    projectId: "sistema-distrital-eventos-mg",
+    storageBucket: "sistema-distrital-eventos-mg.firebasestorage.app",
+    messagingSenderId: "596816120849",
+    appId: "1:596816120849:web:fa6df4a6048be7d4b775b0",
+    measurementId: "G-KD3Y0P9CZQ"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  auth.languageCode = "pt";
+
+  const googleProvider = new GoogleAuthProvider();
+
+  const sections = {
+    login: document.getElementById("loginSection"),
+    register: document.getElementById("registerSection"),
+    recover: document.getElementById("recoverSection"),
+    account: document.getElementById("accountSection")
+  };
+
+  const message = document.getElementById("message");
+
+  function showView(view) {
+    Object.entries(sections).forEach(([name, element]) => {
+      element.classList.toggle("hidden", name !== view);
+    });
+
+    message.className = "message";
+    message.textContent = "";
+  }
+
+  function notify(text, type = "error") {
+    message.textContent = text;
+    message.className = "message " + type;
+  }
+
+  function readableError(error) {
+    const code = error?.code || "";
+
+    const messages = {
+      "auth/invalid-email": "Informe um e-mail válido.",
+      "auth/email-already-in-use": "Este e-mail já está cadastrado.",
+      "auth/weak-password": "Escolha uma senha mais forte.",
+      "auth/invalid-credential": "E-mail ou senha inválidos.",
+      "auth/user-disabled": "Esta conta está desativada.",
+      "auth/too-many-requests": "Muitas tentativas. Aguarde e tente novamente.",
+      "auth/network-request-failed": "Falha de conexão. Verifique sua internet.",
+      "auth/popup-closed-by-user": "A janela de login foi fechada.",
+      "auth/popup-blocked": "O navegador bloqueou a janela de login.",
+      "auth/unauthorized-domain": "Este domínio ainda não foi autorizado no Firebase.",
+      "auth/operation-not-allowed": "Este método de login não está habilitado.",
+      "auth/account-exists-with-different-credential":
+        "Este e-mail já utiliza outro método de login."
+    };
+
+    return messages[code] || "Não foi possível concluir a operação. Tente novamente.";
+  }
+
+  function setBusy(form, busy) {
+    const button = form.querySelector('button[type="submit"]');
+
+    if (button) {
+      button.disabled = busy;
+    }
+  }
+
+  document.querySelectorAll("[data-view]").forEach(button => {
+    button.addEventListener("click", () => {
+      showView(button.dataset.view);
+    });
+  });
+
+  // LOGIN COM E-MAIL E SENHA
+  document.getElementById("loginForm")
+    .addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const form = event.currentTarget;
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      setBusy(form, true);
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        notify(readableError(error));
+      } finally {
+        setBusy(form, false);
+      }
+    });
+
+  // CRIAR CONTA
+  document.getElementById("registerForm")
+    .addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const form = event.currentTarget;
+
+      const name = document.getElementById("registerName").value.trim();
+      const email = document.getElementById("registerEmail").value.trim();
+      const password = document.getElementById("registerPassword").value;
+      const confirm = document.getElementById("registerConfirm").value;
+
+      if (name.length < 3) {
+        notify("Informe seu nome completo.");
+        return;
+      }
+
+      if (password !== confirm) {
+        notify("As senhas não são iguais.");
+        return;
+      }
+
+      setBusy(form, true);
+
+      try {
+        const credential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+        await updateProfile(credential.user, {
+          displayName: name
+        });
+
+        try {
+          await sendEmailVerification(credential.user);
+        } catch (verificationError) {
+          console.warn("Verificação de e-mail pendente:", verificationError.code);
+        }
+
+        renderAccount(auth.currentUser);
+
+        notify(
+          "Conta criada! Verifique seu e-mail para confirmar o endereço.",
+          "success"
+        );
+
+      } catch (error) {
+        notify(readableError(error));
+      } finally {
+        setBusy(form, false);
+      }
+    });
+
+  // LOGIN COM GOOGLE
+  document.getElementById("googleLogin")
+    .addEventListener("click", async () => {
+      const button = document.getElementById("googleLogin");
+      button.disabled = true;
+
+      try {
+        await signInWithPopup(auth, googleProvider);
+      } catch (error) {
+        if (error.code === "auth/popup-blocked") {
+          try {
+            await signInWithRedirect(auth, googleProvider);
+            return;
+          } catch (redirectError) {
+            notify(readableError(redirectError));
+          }
+        } else if (
+          error.code !== "auth/cancelled-popup-request"
+        ) {
+          notify(readableError(error));
+        }
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+  // RECUPERAÇÃO DE SENHA
+  document.getElementById("recoverForm")
+    .addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const form = event.currentTarget;
+      const email = document.getElementById("recoverEmail").value.trim();
+
+      setBusy(form, true);
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+
+        notify(
+          "Se houver uma conta associada a esse e-mail, você receberá instruções para redefinir sua senha.",
+          "success"
+        );
+      } catch (error) {
+        notify(readableError(error));
+      } finally {
+        setBusy(form, false);
+      }
+    });
+
+  // ÁREA AUTENTICADA
+  function renderAccount(user) {
+    if (!user) {
+      showView("login");
+      return;
+    }
+
+    const name = user.displayName ||
+      user.email?.split("@")[0] ||
+      "participante";
+
+    document.getElementById("accountName").textContent = name;
+    document.getElementById("accountEmail").textContent =
+      user.email || "Conta Google";
+
+    document.getElementById("accountStatus").textContent =
+      user.emailVerified
+        ? "E-mail verificado"
+        : "Verificação de e-mail pendente";
+
+    showView("account");
+  }
+
+  // SAIR
+  document.getElementById("logoutButton")
+    .addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+      } catch (error) {
+        notify(readableError(error));
+      }
+    });
+
+  // RESTAURAR SESSÃO
+  onAuthStateChanged(auth, user => {
+    renderAccount(user);
+  });
+
+  // RESULTADO DE REDIRECIONAMENTO GOOGLE
+  getRedirectResult(auth).catch(error => {
+    notify(readableError(error));
+  });
+
+</script>
+
+</body>
+</html>
