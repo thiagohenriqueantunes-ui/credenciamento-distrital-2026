@@ -1,0 +1,437 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Credenciamento Distrital 2026</title>
+
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f1f5f9;
+      color: #17243b;
+      font-family: Arial, sans-serif;
+    }
+
+    main {
+      max-width: 480px;
+      margin: 25px auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    h1 {
+      color: #102b55;
+      font-size: 27px;
+    }
+
+    .sub {
+      color: #64748b;
+      line-height: 1.6;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 3px 12px #00000010;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px;
+      font-size: 18px;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      text-transform: uppercase;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      margin-top: 12px;
+      border: 0;
+      border-radius: 9px;
+      background: #164c96;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .secondary { background: #334155; }
+    .success { background: #167347; }
+    .hidden { display: none !important; }
+
+    .name {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .info {
+      margin: 14px 0;
+      font-size: 16px;
+    }
+
+    .message {
+      padding: 14px;
+      border-radius: 9px;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    .ok {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    #reader {
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    footer {
+      text-align: center;
+      color: #64748b;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+<main>
+
+  <header>
+    <h1>Credenciamento 2026</h1>
+    <div class="sub">
+      Conferência Distrital de Pastores e Líderes
+    </div>
+    <div class="sub">Distrito Minas Gerais</div>
+  </header>
+
+  <section class="card">
+    <label for="codigo">Código do ingresso</label>
+
+    <input
+      id="codigo"
+      placeholder="CDPL26-0001"
+      autocomplete="off"
+    >
+
+    <button id="buscar" onclick="consultar()">
+      Consultar ingresso
+    </button>
+
+    <button
+      id="scan"
+      class="secondary"
+      onclick="alternarCamera()"
+    >
+      Ler QR Code
+    </button>
+
+    <div id="reader" class="hidden"></div>
+    <div id="aviso"></div>
+  </section>
+
+  <section class="card hidden" id="resultado">
+    <div class="name" id="nome"></div>
+    <div class="info" id="ingresso"></div>
+    <div class="info" id="pagamento"></div>
+    <div class="info" id="entrada"></div>
+
+    <button
+      id="confirmar"
+      class="success"
+      onclick="confirmar()"
+    >
+      Confirmar entrada
+    </button>
+  </section>
+
+  <footer>
+    Igreja do Nazareno — Distrito Minas Gerais
+  </footer>
+
+</main>
+
+<script>
+  // A conexão segura com a planilha
+  // será configurada posteriormente.
+  const API_URL = '';
+
+  let participante = null;
+  let leitorQR = null;
+  let iniciandoCamera = false;
+  let operacaoPendente = false;
+
+  const el = id => document.getElementById(id);
+
+  function aviso(texto, erro = false) {
+    el('aviso').innerHTML = '';
+
+    if (!texto) return;
+
+    const div = document.createElement('div');
+    div.className = 'message ' + (erro ? 'error' : 'ok');
+    div.textContent = texto;
+    el('aviso').appendChild(div);
+  }
+
+  function ocupado(valor) {
+    operacaoPendente = valor;
+    el('buscar').disabled = valor;
+    el('confirmar').disabled = valor;
+  }
+
+  async function requisicao(acao, codigo) {
+    if (!API_URL) {
+      throw new Error(
+        'A integração com a planilha ainda não foi configurada.'
+      );
+    }
+
+    const resposta = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      },
+      body: JSON.stringify({ acao, codigo })
+    });
+
+    if (!resposta.ok) {
+      throw new Error('Falha de comunicação com o servidor.');
+    }
+
+    return resposta.json();
+  }
+
+  async function consultar() {
+    if (operacaoPendente) return;
+
+    const codigo = el('codigo').value.trim().toUpperCase();
+
+    await pararCamera();
+
+    participante = null;
+    el('resultado').classList.add('hidden');
+
+    if (!codigo) {
+      aviso('Informe o código do ingresso.', true);
+      return;
+    }
+
+    ocupado(true);
+    aviso('Consultando ingresso...');
+
+    try {
+      const dados = await requisicao('consultar', codigo);
+
+      if (dados.erro) {
+        aviso(dados.erro, true);
+        return;
+      }
+
+      participante = dados;
+
+      el('nome').textContent = dados.nome;
+      el('ingresso').textContent =
+        'Ingresso: ' + dados.codigo;
+
+      el('pagamento').textContent =
+        'Pagamento: ' + dados.pagamento;
+
+      const entrada =
+        String(dados.entrada).trim().toLowerCase() === 'sim';
+
+      const pago =
+        String(dados.pagamento).trim().toLowerCase() === 'confirmado';
+
+      el('entrada').textContent = entrada
+        ? 'Entrada já registrada: ' + (dados.horario || '')
+        : 'Entrada ainda não registrada';
+
+      el('confirmar').disabled = entrada || !pago;
+      el('resultado').classList.remove('hidden');
+
+      aviso('');
+
+    } catch (erro) {
+      aviso(erro.message, true);
+
+    } finally {
+      ocupado(false);
+
+      if (participante) {
+        const entrada =
+          String(participante.entrada).toLowerCase() === 'sim';
+
+        const pago =
+          String(participante.pagamento).toLowerCase() === 'confirmado';
+
+        el('confirmar').disabled = entrada || !pago;
+      }
+    }
+  }
+
+  async function confirmar() {
+    if (!participante || operacaoPendente) return;
+
+    ocupado(true);
+    aviso('Registrando entrada...');
+
+    try {
+      const resposta = await requisicao(
+        'confirmar',
+        participante.codigo
+      );
+
+      if (resposta.erro) {
+        aviso(resposta.erro, true);
+        el('confirmar').disabled = true;
+        return;
+      }
+
+      participante.entrada = 'Sim';
+
+      el('entrada').textContent = 'Entrada confirmada';
+      el('confirmar').disabled = true;
+
+      aviso(
+        'Entrada confirmada! Bem-vindo(a), ' +
+        resposta.nome
+      );
+
+    } catch (erro) {
+      aviso(
+        erro.message +
+        ' Consulte novamente antes de tentar outra vez.',
+        true
+      );
+
+      el('confirmar').disabled = true;
+
+    } finally {
+      ocupado(false);
+
+      if (participante && participante.entrada === 'Sim') {
+        el('confirmar').disabled = true;
+      }
+    }
+  }
+
+  async function alternarCamera() {
+    if (iniciandoCamera) return;
+
+    if (leitorQR) {
+      await pararCamera();
+      return;
+    }
+
+    if (typeof Html5Qrcode === 'undefined') {
+      aviso('Biblioteca de QR Code não carregada.', true);
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      aviso(
+        'Este navegador não disponibilizou acesso à câmera.',
+        true
+      );
+      return;
+    }
+
+    iniciandoCamera = true;
+    el('scan').disabled = true;
+    el('reader').classList.remove('hidden');
+
+    try {
+      leitorQR = new Html5Qrcode('reader');
+
+      await leitorQR.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: 220 },
+
+        async codigoLido => {
+          el('codigo').value =
+            String(codigoLido).trim().toUpperCase();
+
+          await pararCamera();
+          consultar();
+        },
+
+        () => {}
+      );
+
+      el('scan').textContent = 'Fechar câmera';
+      aviso('');
+
+    } catch (erro) {
+      await pararCamera();
+
+      aviso(
+        'Não foi possível iniciar a câmera: ' +
+        (erro.message || erro),
+        true
+      );
+
+    } finally {
+      iniciandoCamera = false;
+      el('scan').disabled = false;
+    }
+  }
+
+  async function pararCamera() {
+    const leitor = leitorQR;
+    leitorQR = null;
+
+    if (leitor) {
+      try {
+        if (leitor.isScanning) {
+          await leitor.stop();
+        }
+
+        leitor.clear();
+
+      } catch (erro) {
+        console.error(erro);
+      }
+    }
+
+    el('reader').classList.add('hidden');
+    el('scan').textContent = 'Ler QR Code';
+  }
+
+  el('codigo').addEventListener('keydown', e => {
+    if (e.key === 'Enter') consultar();
+  });
+</script>
+
+</body>
+</html>
